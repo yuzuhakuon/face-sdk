@@ -4,6 +4,9 @@
 
 #include "gawrs_face/common/logger.h"
 #include "gawrs_face/common/version.h"
+#include "gawrs_face/types/face_feature.h"
+
+using namespace gawrs_face;
 
 int main()
 {
@@ -17,6 +20,9 @@ int main()
     logger->debug("This is a debug message.");
     logger->trace("This is a trace message.");
     logger->flush();
+
+    FeatureVersion version{.major = 0, .minor = 0, .patch = 1};
+    std::cout << "Face Feature Version: " << version << std::endl;
 
     return 0;
 }
