@@ -17,7 +17,8 @@ class SCRFD : public INCNNInference
 {
 public:
     bool loadModelInMemory();
-    std::vector<Detection> doInference(const ncnn::Mat& inImage, float probThreshold, float nmsThreshold);
+    std::vector<Detection> doInference(const ncnn::Mat& inImage, float probThreshold = 0.6f,
+                                       float nmsThreshold = 0.45f);
 
     static constexpr int numKeypoints() { return 5; }
     static constexpr int numValuesPerKeypoint() { return 2; }
