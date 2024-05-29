@@ -39,4 +39,6 @@ struct Detection
     Keypoints keypoints;
 };
 
+using DetectionResult = std::vector<Detection>;
+
 } // namespace gawrs_face
