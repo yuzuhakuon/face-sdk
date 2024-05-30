@@ -5,6 +5,7 @@
 #include "gawrs_face/services/detector/scrfd.h"
 #include "gawrs_face/types/face_feature.h"
 #include "gawrs_face/utilities/face_align.h"
+#include "gawrs_face/utilities/rotation_helper.h"
 #include "gawrs_face/utilities/similarity.h"
 
 namespace gawrs_face
@@ -108,9 +109,10 @@ GawrsFaceErrorCode FaceEngine::detectFace(unsigned char* idata, int width, int h
     int h = height;
     if (config_.rotation != RotationModel::GF_ROTATE_0)
     {
-        logger_->info("Rotate image with rotation: {0}", (int)config_.rotation);
-        auto orientation = mapToOrientation(config_.rotation);
-        if ((config_.rotation == RotationModel::GF_ROTATE_90) | (config_.rotation == RotationModel::GF_ROTATE_270))
+        logger_->info("Restore image with rotation: {0}", (int)config_.rotation);
+        auto restoreRotation = undoRotation(config_.rotation);
+        auto orientation = mapToOrientation(restoreRotation);
+        if ((restoreRotation == RotationModel::GF_ROTATE_90) | (restoreRotation == RotationModel::GF_ROTATE_270))
         {
             std::swap(w, h);
         }
@@ -133,7 +135,15 @@ GawrsFaceErrorCode FaceEngine::detectFace(unsigned char* idata, int width, int h
         const auto bbox = std::get<RelativeBoundingBox>(det.boundingBox);
         if ((bbox.width * config_.detectFaceScaleVal) < width)
             continue;
-        detections.push_back(det);
+
+        if (config_.rotation == RotationModel::GF_ROTATE_0)
+        {
+            detections.push_back(det);
+        }
+        else
+        {
+            detections.push_back(rotateDetectionWithRelative(det, config_.rotation));
+        }
         ++count;
     }
     logger_->info("Accepted {0} faces", detections.size());
@@ -167,9 +177,10 @@ GawrsFaceErrorCode FaceEngine::extractFaceFeature(unsigned char* idata, int widt
     int h = height;
     if (config_.rotation != RotationModel::GF_ROTATE_0)
     {
-        logger_->info("Rotate image with rotation: {0}", (int)config_.rotation);
-        auto orientation = mapToOrientation(config_.rotation);
-        if ((config_.rotation == RotationModel::GF_ROTATE_90) | (config_.rotation == RotationModel::GF_ROTATE_270))
+        logger_->info("Restore image with rotation: {0}", (int)config_.rotation);
+        auto restoreRotation = undoRotation(config_.rotation);
+        auto orientation = mapToOrientation(restoreRotation);
+        if ((restoreRotation == RotationModel::GF_ROTATE_90) | (restoreRotation == RotationModel::GF_ROTATE_270))
         {
             std::swap(w, h);
         }
@@ -177,9 +188,10 @@ GawrsFaceErrorCode FaceEngine::extractFaceFeature(unsigned char* idata, int widt
     }
 
     // Convert the input image to the appropriate format
+    auto rotatedDet = undoRotateDetectionWithRelative(det, config_.rotation);
     auto ncnnFormat = toNCNN_RGB24(format);
     ncnn::Mat inImage = ncnn::Mat::from_pixels(idata, ncnnFormat, width, height);
-    auto cropped = normCrop(inImage, det, kAlignedFaceSize, kAlignedFaceSize);
+    auto cropped = normCrop(inImage, rotatedDet, kAlignedFaceSize, kAlignedFaceSize);
     auto feature = faceExtractor_->doInference(cropped);
 
     FeatureVersion version{
@@ -224,7 +236,7 @@ int mapToOrientation(RotationModel model)
     }
 }
 
-inline int toNCNN_RGB24(int format)
+int toNCNN_RGB24(int format)
 {
     if (format == ImageFormat::GF_BGRA)
     {

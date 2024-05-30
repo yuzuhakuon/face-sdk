@@ -9,14 +9,14 @@ enum RuntimeModel
 
 enum RotationModel
 {
-    GF_ROTATE_0 = 0,
-    GF_ROTATE_90,
-    GF_ROTATE_180,
-    GF_ROTATE_270,
-    GF_HorizontalFlip,
-    GF_VerticalFlip,
-    GF_RotationFlip,
-    GF_FlipRotation,
+    GF_ROTATE_0 = 1,
+    GF_ROTATE_90 = 6,
+    GF_ROTATE_180 = 3,
+    GF_ROTATE_270 = 8,
+    GF_HorizontalFlip = 2,
+    GF_VerticalFlip = 4,
+    GF_RotationFlip = 5, ///< Unimplemented!!
+    GF_FlipRotation = 7, ///< Unimplemented!!
 };
 
 enum ImageFormat

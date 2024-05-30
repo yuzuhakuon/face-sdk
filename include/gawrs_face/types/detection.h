@@ -24,7 +24,7 @@ using AbsoluteKeypoints = std::vector<AbsoluteKeypoint>;
 
 using BoundingBox = std::variant<RelativeBoundingBox, AbsoluteBoundingBox>;
 using Keypoints = std::variant<RelativeKeypoints, AbsoluteKeypoints>;
-;
+
 
 struct Detection
 {
