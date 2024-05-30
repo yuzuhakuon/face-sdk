@@ -54,7 +54,7 @@ GF_API GawrsRet initEngine(_Inout_ GawrsHandle* handle, _In_ int detectFaceScale
  * @param detectedFaces the detected faces
  * @return SDKRet the error code, 0 means success
  */
-GawrsRet detectFaces(_In_ GawrsHandle handle, _In_ LP_ImageData img, _Inout_ LP_GawrsMultiFaceInfo detectedFaces);
+GF_API GawrsRet detectFaces(_In_ GawrsHandle handle, _In_ LP_ImageData img, _Inout_ LP_GawrsMultiFaceInfo detectedFaces);
 
 /**
  * @brief Extract face feature from an image
@@ -65,7 +65,7 @@ GawrsRet detectFaces(_In_ GawrsHandle handle, _In_ LP_ImageData img, _Inout_ LP_
  * @param feature the face feature
  * @return SDKRet the error code, 0 means success
  */
-GawrsRet extractFaceFeature(_In_ GawrsHandle handle, _In_ LP_ImageData img, _In_ LP_GawrsFaceInfo faceInfo,
+GF_API GawrsRet extractFaceFeature(_In_ GawrsHandle handle, _In_ LP_ImageData img, _In_ LP_GawrsFaceInfo faceInfo,
                             _Inout_ LP_GawrsFaceFeature feature);
 
 /**
@@ -78,7 +78,7 @@ GawrsRet extractFaceFeature(_In_ GawrsHandle handle, _In_ LP_ImageData img, _In_
  *
  * @return the error code, 0 means success
  */
-GawrsRet faceFeatureCompare(_In_ GawrsHandle handle, _In_ LP_GawrsFaceFeature feature1,
+GF_API GawrsRet faceFeatureCompare(_In_ GawrsHandle handle, _In_ LP_GawrsFaceFeature feature1,
                             _In_ LP_GawrsFaceFeature feature2, _Inout_ float* confidenceLevel);
 
 /**
@@ -86,7 +86,7 @@ GawrsRet faceFeatureCompare(_In_ GawrsHandle handle, _In_ LP_GawrsFaceFeature fe
  *
  * @param handle the SDK handle
  */
-void releaseEngine(_In_ GawrsHandle handle);
+GF_API void releaseEngine(_In_ GawrsHandle handle);
 
-void gc_LP_SDKMultiFaceInfo(GawrsMultiFaceInfo* multiFaceInfo);
-void gc_LP_SDKFaceFeature(GawrsFaceFeature* feature);
+GF_API void gc_LP_SDKMultiFaceInfo(GawrsMultiFaceInfo* multiFaceInfo);
+GF_API void gc_LP_SDKFaceFeature(GawrsFaceFeature* feature);
