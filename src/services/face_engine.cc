@@ -3,6 +3,9 @@
 #include "gawrs_face/common/logger.h"
 #include "gawrs_face/sdk_interface/sdk_interface.h"
 #include "gawrs_face/services/detector/scrfd.h"
+#include "gawrs_face/types/face_feature.h"
+#include "gawrs_face/utilities/face_align.h"
+#include "gawrs_face/utilities/similarity.h"
 
 namespace gawrs_face
 {
@@ -109,14 +112,14 @@ GawrsFaceErrorCode FaceEngine::detectFace(unsigned char* idata, int width, int h
         auto orientation = mapToOrientation(config_.rotation);
         if ((config_.rotation == RotationModel::GF_ROTATE_90) | (config_.rotation == RotationModel::GF_ROTATE_270))
         {
-            std::swap(width, height);
+            std::swap(w, h);
         }
-        ncnn::kanna_rotate_c3(idata, w, h, idata, width, height, orientation);
+        ncnn::kanna_rotate_c3(idata, width, height, idata, w, h, orientation);
     }
 
     // Convert the input image to the appropriate format
     auto ncnnFormat = toNCNN_RGB24(format);
-    ncnn::Mat inImage = ncnn::Mat::from_pixels(idata, ncnnFormat, width, height);
+    ncnn::Mat inImage = ncnn::Mat::from_pixels(idata, ncnnFormat, w, h);
     auto result = faceDetector_->doInference(inImage);
     logger_->info("Detected {0} faces", result.size());
 
@@ -137,6 +140,63 @@ GawrsFaceErrorCode FaceEngine::detectFace(unsigned char* idata, int width, int h
 #pragma endregion
 
     return ret;
+}
+
+GawrsFaceErrorCode FaceEngine::extractFaceFeature(unsigned char* idata, int width, int height, int format,
+                                                  const Detection& det, FaceFeaturePacked& packed)
+{
+    auto ret = GawrsFaceErrorCode::GFE_OK;
+    std::shared_lock lk(mut_);
+    if (!hasInitialized_)
+    {
+        ret = GawrsFaceErrorCode::GFE_ENGINE_NOT_INIT;
+        return ret;
+    }
+    if (!faceExtractor_)
+    {
+        ret = GawrsFaceErrorCode::GFE_RECOGNIZER_NOT_INIT;
+        return ret;
+    }
+    ret = imageCheck(idata, width, height, format);
+    if (ret != GFE_OK)
+    {
+        return ret;
+    }
+
+    int w = width;
+    int h = height;
+    if (config_.rotation != RotationModel::GF_ROTATE_0)
+    {
+        logger_->info("Rotate image with rotation: {0}", (int)config_.rotation);
+        auto orientation = mapToOrientation(config_.rotation);
+        if ((config_.rotation == RotationModel::GF_ROTATE_90) | (config_.rotation == RotationModel::GF_ROTATE_270))
+        {
+            std::swap(w, h);
+        }
+        ncnn::kanna_rotate_c3(idata, width, height, idata, w, h, orientation);
+    }
+
+    // Convert the input image to the appropriate format
+    auto ncnnFormat = toNCNN_RGB24(format);
+    ncnn::Mat inImage = ncnn::Mat::from_pixels(idata, ncnnFormat, width, height);
+    auto cropped = normCrop(inImage, det, kAlignedFaceSize, kAlignedFaceSize);
+    auto feature = faceExtractor_->doInference(cropped);
+
+    FeatureVersion version{
+        .major = kFeatureVersionMajor,
+        .minor = kFeatureVersionMinor,
+        .patch = kFeatureVersionPatch,
+    };
+    packed.version = version;
+    memcpy(packed.feature, feature.data(), kFeatureSize * sizeof(float));
+
+    return ret;
+}
+
+float FaceEngine::compareFaceFeature(const FaceFeaturePacked& packed1, const FaceFeaturePacked& packed2)
+{
+    auto cosine = cosineSimilarity(packed1.feature, packed2.feature, kFeatureSize);
+    return cosine;
 }
 
 int mapToOrientation(RotationModel model)

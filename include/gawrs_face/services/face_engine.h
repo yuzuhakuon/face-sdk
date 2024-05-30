@@ -31,9 +31,9 @@ public:
                                   std::vector<Detection>& detections);
 
     GawrsFaceErrorCode extractFaceFeature(unsigned char* idata, int width, int height, int format, const Detection& det,
-                                          FaceFeaturePacked& featurePacked);
+                                          FaceFeaturePacked& packed);
 
-    static float compareFaceFeature(const FaceFeaturePacked& featurePacked1, const FaceFeaturePacked& featurePacked2);
+    static float compareFaceFeature(const FaceFeaturePacked& packed1, const FaceFeaturePacked& packed2);
 
 private:
     GawrsFaceErrorCode imageCheck(unsigned char* idata, int width, int height, int format);
