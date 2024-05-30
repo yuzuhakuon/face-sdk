@@ -19,7 +19,7 @@ GawrsRet initEngine(GawrsHandle* handle, int detectFaceScale, int detectFaceMaxN
         .rotation = static_cast<RotationModel>(rotation),
     };
 
-    ret = engine->createEngine(config);
+    ret = engine->initialize(config);
     if (ret != GawrsFaceErrorCode::GFE_OK)
     {
         delete engine;

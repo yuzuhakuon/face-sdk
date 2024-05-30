@@ -26,7 +26,7 @@ class FaceEngine
 public:
     FaceEngine();
 
-    GawrsFaceErrorCode createEngine(const FaceEngineConfig& config);
+    GawrsFaceErrorCode initialize(const FaceEngineConfig& config);
     void destroyEngine();
 
     GawrsFaceErrorCode detectFace(unsigned char* idata, int width, int height, int format,

@@ -11,7 +11,7 @@ namespace gawrs_face
 {
 FaceEngine::FaceEngine() { logger_ = Logger::instance().logger(); }
 
-GawrsFaceErrorCode FaceEngine::createEngine(const FaceEngineConfig& config)
+GawrsFaceErrorCode FaceEngine::initialize(const FaceEngineConfig& config)
 {
     logger_->info("Create Face Engine");
     auto ret = GawrsFaceErrorCode::GFE_OK;

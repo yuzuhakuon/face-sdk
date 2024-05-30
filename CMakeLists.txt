@@ -73,10 +73,6 @@ set_ncnn_root_dir()
 find_package(ncnn REQUIRED)
 add_definitions(-DNCNN_INMEMORY)
 
-if(NOT ANDROID)
-  find_package(OpenCV REQUIRED)
-endif()
-
 if(ANDROID)
   if(TARGET ncnn)
     set_target_properties(ncnn PROPERTIES INTERFACE_COMPILE_OPTIONS
@@ -97,10 +93,7 @@ ncnnmem_generate(TARGET core_obj MODELS resources/models/scrfd
                  resources/models/mbf)
 
 add_subdirectory(tests)
-
-if(OpenCV_FOUND)
-  add_subdirectory(samples)
-endif()
+add_subdirectory(samples)
 
 # ------------------------------------------------------------------
 # Compile
