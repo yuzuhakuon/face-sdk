@@ -1,7 +1,7 @@
 #pragma once
 #include <tuple>
 
-#include "gawrs_face/sdk_interface/sdk_interface.h"
+#include "gawrs_face/sdk_interface/sdk_types.h"
 #include "gawrs_face/types/detection.h"
 
 namespace gawrs_face

@@ -4,7 +4,7 @@
 #include <spdlog/spdlog.h>
 
 #include "gawrs_face/sdk_interface/error_code.h"
-#include "gawrs_face/sdk_interface/sdk_interface.h"
+#include "gawrs_face/sdk_interface/sdk_types.h"
 #include "gawrs_face/services/detector/scrfd.h"
 #include "gawrs_face/services/extractor/mobilefacenet.h"
 #include "gawrs_face/types/face_feature.h"

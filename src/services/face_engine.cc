@@ -1,7 +1,6 @@
 #include "gawrs_face/services/face_engine.h"
 #include "gawrs_face/common/config.h"
 #include "gawrs_face/common/logger.h"
-#include "gawrs_face/sdk_interface/sdk_interface.h"
 #include "gawrs_face/services/detector/scrfd.h"
 #include "gawrs_face/types/face_feature.h"
 #include "gawrs_face/utilities/face_align.h"
