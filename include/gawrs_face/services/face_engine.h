@@ -16,6 +16,8 @@ struct FaceEngineConfig
     int detectFaceScaleVal{11};
     int detectFaceMaxNum{20};
     int combinedMask{0};
+    float probThreshold{0.6f};
+    float nmsThreshold{0.45f};
     RotationModel rotation{RotationModel::GF_ROTATE_0};
 };
 
@@ -34,6 +36,21 @@ public:
                                           FaceFeaturePacked& packed);
 
     static float compareFaceFeature(const FaceFeaturePacked& packed1, const FaceFeaturePacked& packed2);
+
+public:
+    FaceEngineConfig config() { return config_; }
+
+    const FaceEngineConfig& config() const { return config_; }
+
+    void setDetectFaceScaleVal(int val) { config_.detectFaceScaleVal = val; }
+
+    void setDetectFaceMaxNum(int val) { config_.detectFaceMaxNum = val; }
+
+    void setProbThreshold(float val) { config_.probThreshold = val; }
+
+    void setNMSThreshold(float val) { config_.nmsThreshold = val; }
+
+    void setRotation(RotationModel val) { config_.rotation = val; }
 
 private:
     GawrsFaceErrorCode imageCheck(unsigned char* idata, int width, int height, int format);

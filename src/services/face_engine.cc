@@ -122,7 +122,7 @@ GawrsFaceErrorCode FaceEngine::detectFace(unsigned char* idata, int width, int h
     // Convert the input image to the appropriate format
     auto ncnnFormat = toNCNN_RGB24(format);
     ncnn::Mat inImage = ncnn::Mat::from_pixels(idata, ncnnFormat, w, h);
-    auto result = faceDetector_->doInference(inImage);
+    auto result = faceDetector_->doInference(inImage, config_.probThreshold, config_.nmsThreshold);
     logger_->info("Detected {0} faces", result.size());
 
 #pragma region Filter the detections

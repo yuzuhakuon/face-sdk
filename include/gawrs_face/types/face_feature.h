@@ -21,6 +21,28 @@ union FeatureVersion
         out << (int)v.major << "." << (int)v.minor << "." << (int)v.patch;
         return out;
     }
+
+    bool operator==(const FeatureVersion& v) const { return major == v.major && minor == v.minor && patch == v.patch; }
+    bool operator!=(const FeatureVersion& v) const { return !(*this == v); }
+    bool operator<(const FeatureVersion& v) const
+    {
+        if (major < v.major)
+            return true;
+        if (major > v.major)
+            return false;
+        if (minor < v.minor)
+            return true;
+        if (minor > v.minor)
+            return false;
+        if (patch < v.patch)
+            return true;
+        if (patch > v.patch)
+            return false;
+        return false;
+    }
+    bool operator>(const FeatureVersion& v) const { return !(*this < v) && !(*this == v); }
+    bool operator>=(const FeatureVersion& v) const { return !(*this < v); }
+    bool operator<=(const FeatureVersion& v) const { return !(*this > v); }
 };
 
 union FaceFeaturePacked
