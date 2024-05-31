@@ -24,16 +24,16 @@ std::tuple<float, float> rotatePoint(float cx, float cy, float angle, float px, 
 
 std::tuple<float, float> rotatePoint90Cw(float cx, float cy, float px, float py)
 {
-    float newX = -(py - cy) + cx;
-    float newY = (px - cx) + cy;
+    float newX = -(py - cy) + cy;
+    float newY = px;
 
     return std::make_tuple(newX, newY);
 }
 
 std::tuple<float, float> rotatePoint90Ccw(float cx, float cy, float px, float py)
 {
-    float newX = (py - cy) + cx;
-    float newY = -(px - cx) + cy;
+    float newX = py;
+    float newY = -(px - cx) + cx;
 
     return std::make_tuple(newX, newY);
 }

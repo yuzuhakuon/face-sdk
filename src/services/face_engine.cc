@@ -149,7 +149,7 @@ GawrsFaceErrorCode FaceEngine::detectFace(unsigned char* idata, int width, int h
         }
         else
         {
-            detections.push_back(rotateDetectionWithRelative(det, config_.rotation, width, height));
+            detections.push_back(rotateDetectionWithRelative(det, config_.rotation, w, h));
         }
         ++count;
     }
