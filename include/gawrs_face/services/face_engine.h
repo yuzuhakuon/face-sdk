@@ -19,6 +19,34 @@ struct FaceEngineConfig
     float probThreshold{0.6f};
     float nmsThreshold{0.45f};
     RotationModel rotation{RotationModel::GF_ROTATE_0};
+
+    void setSupportFaceDetect(bool support)
+    {
+        if (support)
+        {
+            combinedMask |= RuntimeModel::GF_FACE_DETECTION;
+        }
+        else
+        {
+            combinedMask &= ~RuntimeModel::GF_FACE_DETECTION;
+        }
+    }
+
+    bool isSupportFaceDetect() const { return (combinedMask & RuntimeModel::GF_FACE_DETECTION) > 0; }
+
+    void setSupportFaceRecognize(bool support)
+    {
+        if (support)
+        {
+            combinedMask |= RuntimeModel::GF_FACE_RECOGNITION;
+        }
+        else
+        {
+            combinedMask &= ~RuntimeModel::GF_FACE_RECOGNITION;
+        }
+    }
+
+    bool isSupportFaceRecognize() const { return (combinedMask & RuntimeModel::GF_FACE_RECOGNITION) > 0; }
 };
 
 class FaceEngine
@@ -27,7 +55,6 @@ public:
     FaceEngine();
 
     GawrsFaceErrorCode initialize(const FaceEngineConfig& config);
-    void destroyEngine();
 
     GawrsFaceErrorCode detectFace(unsigned char* idata, int width, int height, int format,
                                   std::vector<Detection>& detections);
