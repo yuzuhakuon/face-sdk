@@ -141,7 +141,7 @@ GawrsFaceErrorCode FaceEngine::detectFace(unsigned char* idata, int width, int h
         }
         else
         {
-            detections.push_back(rotateDetectionWithRelative(det, config_.rotation));
+            detections.push_back(rotateDetectionWithRelative(det, config_.rotation, width, height));
         }
         ++count;
     }
@@ -187,7 +187,7 @@ GawrsFaceErrorCode FaceEngine::extractFaceFeature(unsigned char* idata, int widt
     }
 
     // Convert the input image to the appropriate format
-    auto rotatedDet = undoRotateDetectionWithRelative(det, config_.rotation);
+    auto rotatedDet = undoRotateDetectionWithRelative(det, config_.rotation, width, height);
     auto ncnnFormat = toNCNN_RGB24(format);
     ncnn::Mat inImage = ncnn::Mat::from_pixels(idata, ncnnFormat, width, height);
     auto cropped = normCrop(inImage, rotatedDet, kAlignedFaceSize, kAlignedFaceSize);

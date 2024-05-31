@@ -54,40 +54,42 @@ std::tuple<float, float> verticalFlip(float cy, float px, float py)
     return std::make_tuple(newX, newY);
 }
 
-RelativeBoundingBox rotateBoundingBox(const RelativeBoundingBox& box, RotationModel rotation)
+RelativeBoundingBox rotateBoundingBox(const RelativeBoundingBox& box, RotationModel rotation, float width, float height)
 {
     float left = box.xmin;
     float top = box.ymin;
     float right = box.xmin + box.width;
     float bottom = box.ymin + box.height;
+    float cx = width * 0.5f;
+    float cy = height * 0.5f;
     switch (rotation)
     {
         case RotationModel::GF_ROTATE_0:
             return box;
         case RotationModel::GF_ROTATE_90:
         {
-            auto [xmin, ymin] = rotatePoint90Cw(0.5, 0.5, left, bottom);
+            auto [xmin, ymin] = rotatePoint90Cw(cx, cy, left, bottom);
             return {xmin, ymin, box.height, box.width};
         }
         case RotationModel::GF_ROTATE_180:
         {
-            auto [x, y] = rotatePoint90Cw(0.5, 0.5, right, bottom);
-            auto [xmin, ymin] = rotatePoint90Cw(0.5, 0.5, x, y);
+            auto [x, y] = rotatePoint90Cw(cx, cy, right, bottom);
+            auto [xmin, ymin] = rotatePoint90Cw(cy, cx, x, y);
             return {xmin, ymin, box.width, box.height};
         }
         case RotationModel::GF_ROTATE_270:
         {
-            auto [xmin, ymin] = rotatePoint90Ccw(0.5, 0.5, right, top);
+            auto [xmin, ymin] = rotatePoint90Ccw(cx, cy, right, top);
             return {xmin, ymin, box.height, box.width};
         }
         case RotationModel::GF_HorizontalFlip:
         {
-            auto [xmin, ymin] = horizontalFlip(0.5, right, top);
+            auto [xmin, ymin] = horizontalFlip(cx, right, top);
             return {xmin, ymin, box.width, box.height};
         }
         case RotationModel::GF_VerticalFlip:
         {
-            auto [xmin, ymin] = verticalFlip(0.5, left, bottom);
+            auto [xmin, ymin] = verticalFlip(cy, left, bottom);
             return {xmin, ymin, box.width, box.height};
         }
         default:
@@ -95,36 +97,38 @@ RelativeBoundingBox rotateBoundingBox(const RelativeBoundingBox& box, RotationMo
     }
 }
 
-RelativeKeypoint rotateKeypoint(const RelativeKeypoint& keypoint, RotationModel rotation)
+RelativeKeypoint rotateKeypoint(const RelativeKeypoint& keypoint, RotationModel rotation, float width, float height)
 {
+    float cx = width * 0.5f;
+    float cy = height * 0.5f;
     switch (rotation)
     {
         case RotationModel::GF_ROTATE_0:
             return keypoint;
         case RotationModel::GF_ROTATE_90:
         {
-            auto [x, y] = rotatePoint90Cw(0.5, 0.5, keypoint.x(), keypoint.y());
+            auto [x, y] = rotatePoint90Cw(cx, cy, keypoint.x(), keypoint.y());
             return {x, y};
         }
         case RotationModel::GF_ROTATE_180:
         {
-            auto [x_, y_] = rotatePoint90Cw(0.5, 0.5, keypoint.x(), keypoint.y());
-            auto [x, y] = rotatePoint90Cw(0.5, 0.5, x_, y_);
+            auto [x_, y_] = rotatePoint90Cw(cx, cy, keypoint.x(), keypoint.y());
+            auto [x, y] = rotatePoint90Cw(cy, cx, x_, y_);
             return {x, y};
         }
         case RotationModel::GF_ROTATE_270:
         {
-            auto [x, y] = rotatePoint90Ccw(0.5, 0.5, keypoint.x(), keypoint.y());
+            auto [x, y] = rotatePoint90Ccw(cx, cy, keypoint.x(), keypoint.y());
             return {x, y};
         }
         case RotationModel::GF_HorizontalFlip:
         {
-            auto [x, y] = horizontalFlip(0.5, keypoint.x(), keypoint.y());
+            auto [x, y] = horizontalFlip(cx, keypoint.x(), keypoint.y());
             return {x, y};
         }
         case RotationModel::GF_VerticalFlip:
         {
-            auto [x, y] = verticalFlip(0.5, keypoint.x(), keypoint.y());
+            auto [x, y] = verticalFlip(cy, keypoint.x(), keypoint.y());
             return {x, y};
         }
         default:
@@ -132,23 +136,23 @@ RelativeKeypoint rotateKeypoint(const RelativeKeypoint& keypoint, RotationModel 
     }
 }
 
-RelativeKeypoints rotateKeypoints(const RelativeKeypoints& keypoints, RotationModel rotation)
+RelativeKeypoints rotateKeypoints(const RelativeKeypoints& keypoints, RotationModel rotation, float width, float height)
 {
     RelativeKeypoints rotatedKeypoints;
     for (auto& keypoint : keypoints)
     {
-        auto p = rotateKeypoint(keypoint, rotation);
+        auto p = rotateKeypoint(keypoint, rotation, width, height);
         rotatedKeypoints.push_back(p);
     }
     return rotatedKeypoints;
 }
 
-Detection rotateDetectionWithRelative(const Detection& detection, RotationModel rotation)
+Detection rotateDetectionWithRelative(const Detection& detection, RotationModel rotation, float width, float height)
 {
     auto& keypoints = std::get<RelativeKeypoints>(detection.keypoints);
-    auto rotatedKeypoints = rotateKeypoints(keypoints, rotation);
+    auto rotatedKeypoints = rotateKeypoints(keypoints, rotation, width, height);
     auto& bbox = std::get<RelativeBoundingBox>(detection.boundingBox);
-    auto rotatedBoundingBox = rotateBoundingBox(bbox, rotation);
+    auto rotatedBoundingBox = rotateBoundingBox(bbox, rotation, width, height);
     return Detection{
         .label = detection.label,
         .score = detection.score,
@@ -157,7 +161,7 @@ Detection rotateDetectionWithRelative(const Detection& detection, RotationModel 
     };
 }
 
-Detection undoRotateDetectionWithRelative(const Detection& detection, RotationModel rotation)
+Detection undoRotateDetectionWithRelative(const Detection& detection, RotationModel rotation, float width, float height)
 {
     if (rotation == RotationModel::GF_ROTATE_0)
     {
@@ -165,7 +169,7 @@ Detection undoRotateDetectionWithRelative(const Detection& detection, RotationMo
     }
 
     rotation = undoRotation(rotation);
-    auto newDetection = rotateDetectionWithRelative(detection, rotation);
+    auto newDetection = rotateDetectionWithRelative(detection, rotation, width, height);
 
     return newDetection;
 }

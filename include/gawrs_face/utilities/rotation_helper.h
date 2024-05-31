@@ -60,11 +60,14 @@ std::tuple<float, float> horizontalFlip(float cx, float px, float py);
  */
 std::tuple<float, float> verticalFlip(float cy, float px, float py);
 
-RelativeBoundingBox rotateBoundingBox(const RelativeBoundingBox& box, RotationModel rotation);
-RelativeKeypoint rotateKeypoint(const RelativeKeypoint& keypoint, RotationModel rotation);
-RelativeKeypoints rotateKeypoints(const RelativeKeypoints& keypoints, RotationModel rotation);
+RelativeBoundingBox rotateBoundingBox(const RelativeBoundingBox& box, RotationModel rotation, float width,
+                                      float height);
+RelativeKeypoint rotateKeypoint(const RelativeKeypoint& keypoint, RotationModel rotation, float width, float height);
+RelativeKeypoints rotateKeypoints(const RelativeKeypoints& keypoints, RotationModel rotation, float width,
+                                  float height);
 
-Detection rotateDetectionWithRelative(const Detection& detection, RotationModel rotation);
-Detection undoRotateDetectionWithRelative(const Detection& detection, RotationModel rotation);
+Detection rotateDetectionWithRelative(const Detection& detection, RotationModel rotation, float width, float height);
+Detection undoRotateDetectionWithRelative(const Detection& detection, RotationModel rotation, float width,
+                                          float height);
 RotationModel undoRotation(RotationModel model);
 } // namespace gawrs_face
