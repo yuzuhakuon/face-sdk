@@ -256,7 +256,7 @@ int toNCNN_RGB24(ImageFormat format)
         case ImageFormat::SBGRA:
             return ncnn::Mat::PIXEL_BGRA2RGB;
         case ImageFormat::SBGR:
-            return ncnn::Mat::PIXEL_BGRA2RGB;
+            return ncnn::Mat::PIXEL_BGR2RGB;
         default:
             return ncnn::Mat::PIXEL_RGB;
     }
