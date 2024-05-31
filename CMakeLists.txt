@@ -25,6 +25,7 @@ set(CMAKE_INSTALL_PREFIX "install")
 # ------------------------------------------------------------------
 option(ENABLE_LOG "write to local file" ON)
 option(java_REQUIRED "build with java interface" OFF)
+option(python_REQUIRED "build with python interface" ON)
 # option(TensorRT_REQUIRED "add tensorrt support" OFF)
 # option(onnxruntime_REQUIRED "add onnxruntime support" ON)
 
@@ -94,6 +95,9 @@ ncnnmem_generate(TARGET core_obj MODELS resources/models/scrfd
 
 add_subdirectory(tests)
 add_subdirectory(samples)
+if(python_REQUIRED)
+  add_subdirectory(python_api)
+endif()
 
 # ------------------------------------------------------------------
 # Compile
