@@ -186,6 +186,10 @@ RotationModel undoRotation(RotationModel model)
             return RotationModel::GF_ROTATE_180;
         case RotationModel::GF_ROTATE_270:
             return RotationModel::GF_ROTATE_90;
+        case RotationModel::GF_HorizontalFlip:
+            return RotationModel::GF_HorizontalFlip;
+        case RotationModel::GF_VerticalFlip:
+            return RotationModel::GF_VerticalFlip;
         default:
             return RotationModel::GF_ROTATE_0;
     }

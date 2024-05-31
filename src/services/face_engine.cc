@@ -1,7 +1,10 @@
-#include "gawrs_face/services/face_engine.h"
+#include <vector>
+
 #include "gawrs_face/common/config.h"
+#include "gawrs_face/common/image_frame.h"
 #include "gawrs_face/common/logger.h"
 #include "gawrs_face/services/detector/scrfd.h"
+#include "gawrs_face/services/face_engine.h"
 #include "gawrs_face/types/face_feature.h"
 #include "gawrs_face/utilities/face_align.h"
 #include "gawrs_face/utilities/rotation_helper.h"
@@ -62,11 +65,14 @@ GawrsFaceErrorCode FaceEngine::initialize(const FaceEngineConfig& config)
     logger_->info("Combined Mask: {0}", config.combinedMask);
     logger_->info("Detect Face Scale Value: {0}", config.detectFaceScaleVal);
     logger_->info("Detect Face Max Number: {0}", config.detectFaceMaxNum);
+    logger_->info("Prob Threshold: {0}", config.probThreshold);
+    logger_->info("NMS Threshold: {0}", config.nmsThreshold);
+    logger_->info("Face Rotation: {0}", (int)config.rotation);
 
     return ret;
 }
 
-GawrsFaceErrorCode FaceEngine::imageCheck(unsigned char* idata, int width, int height, int format)
+GawrsFaceErrorCode FaceEngine::imageCheck(unsigned char* idata, int width, int height, ImageFormat format)
 {
     auto ret = GawrsFaceErrorCode::GFE_OK;
     if (idata == nullptr)
@@ -82,10 +88,10 @@ GawrsFaceErrorCode FaceEngine::imageCheck(unsigned char* idata, int width, int h
     return ret;
 }
 
-GawrsFaceErrorCode FaceEngine::detectFace(unsigned char* idata, int width, int height, int format,
+GawrsFaceErrorCode FaceEngine::detectFace(unsigned char* idata, int width, int height, ImageFormat format,
                                           std::vector<Detection>& detections)
 {
-    logger_->info("Detect image with width: {0}, height: {1}, format: {2}", width, height, format);
+    logger_->info("Detect image with width: {0}, height: {1}, format: {2}", width, height, static_cast<int>(format));
     auto ret = GawrsFaceErrorCode::GFE_OK;
     std::shared_lock lk(mut_);
     if (!hasInitialized_)
@@ -106,6 +112,8 @@ GawrsFaceErrorCode FaceEngine::detectFace(unsigned char* idata, int width, int h
 
     int w = width;
     int h = height;
+    int ch = ImageFrame::numberOfChannelsForFormat(format);
+    std::vector<unsigned char> odata(idata, idata + width * height * ch);
     if (config_.rotation != RotationModel::GF_ROTATE_0)
     {
         logger_->info("Restore image with rotation: {0}", (int)config_.rotation);
@@ -115,12 +123,12 @@ GawrsFaceErrorCode FaceEngine::detectFace(unsigned char* idata, int width, int h
         {
             std::swap(w, h);
         }
-        ncnn::kanna_rotate_c3(idata, width, height, idata, w, h, orientation);
+        ncnn::kanna_rotate_c3(idata, width, height, odata.data(), w, h, orientation);
     }
 
     // Convert the input image to the appropriate format
     auto ncnnFormat = toNCNN_RGB24(format);
-    ncnn::Mat inImage = ncnn::Mat::from_pixels(idata, ncnnFormat, w, h);
+    ncnn::Mat inImage = ncnn::Mat::from_pixels(odata.data(), ncnnFormat, w, h);
     auto result = faceDetector_->doInference(inImage, config_.probThreshold, config_.nmsThreshold);
     logger_->info("Detected {0} faces", result.size());
 
@@ -151,7 +159,7 @@ GawrsFaceErrorCode FaceEngine::detectFace(unsigned char* idata, int width, int h
     return ret;
 }
 
-GawrsFaceErrorCode FaceEngine::extractFaceFeature(unsigned char* idata, int width, int height, int format,
+GawrsFaceErrorCode FaceEngine::extractFaceFeature(unsigned char* idata, int width, int height, ImageFormat format,
                                                   const Detection& det, FaceFeaturePacked& packed)
 {
     auto ret = GawrsFaceErrorCode::GFE_OK;
@@ -174,6 +182,8 @@ GawrsFaceErrorCode FaceEngine::extractFaceFeature(unsigned char* idata, int widt
 
     int w = width;
     int h = height;
+    int ch = ImageFrame::numberOfChannelsForFormat(format);
+    std::vector<unsigned char> odata(idata, idata + width * height * ch);
     if (config_.rotation != RotationModel::GF_ROTATE_0)
     {
         logger_->info("Restore image with rotation: {0}", (int)config_.rotation);
@@ -183,13 +193,13 @@ GawrsFaceErrorCode FaceEngine::extractFaceFeature(unsigned char* idata, int widt
         {
             std::swap(w, h);
         }
-        ncnn::kanna_rotate_c3(idata, width, height, idata, w, h, orientation);
+        ncnn::kanna_rotate_c3(idata, width, height, odata.data(), w, h, orientation);
     }
 
     // Convert the input image to the appropriate format
     auto rotatedDet = undoRotateDetectionWithRelative(det, config_.rotation, width, height);
     auto ncnnFormat = toNCNN_RGB24(format);
-    ncnn::Mat inImage = ncnn::Mat::from_pixels(idata, ncnnFormat, width, height);
+    ncnn::Mat inImage = ncnn::Mat::from_pixels(odata.data(), ncnnFormat, w, h);
     auto cropped = normCrop(inImage, rotatedDet, kAlignedFaceSize, kAlignedFaceSize);
     auto feature = faceExtractor_->doInference(cropped);
 
@@ -235,29 +245,20 @@ int mapToOrientation(RotationModel model)
     }
 }
 
-int toNCNN_RGB24(int format)
+int toNCNN_RGB24(ImageFormat format)
 {
-    if (format == ImageFormat::GF_BGRA)
+    switch (format)
     {
-        return ncnn::Mat::PIXEL_BGRA2RGB;
+        case ImageFormat::SRGBA:
+            return ncnn::Mat::PIXEL_RGBA2RGB;
+        case ImageFormat::GRAY8:
+            return ncnn::Mat::PIXEL_GRAY2RGB;
+        case ImageFormat::SBGRA:
+            return ncnn::Mat::PIXEL_BGRA2RGB;
+        case ImageFormat::SBGR:
+            return ncnn::Mat::PIXEL_BGRA2RGB;
+        default:
+            return ncnn::Mat::PIXEL_RGB;
     }
-    else if (format == (int)ImageFormat::GF_RGBA)
-    {
-        return ncnn::Mat::PIXEL_RGBA2RGB;
-    }
-    else if (format == (int)ImageFormat::GF_BGR24)
-    {
-        return ncnn::Mat::PIXEL_BGR2RGB;
-    }
-    else if (format == (int)ImageFormat::GF_RGB24)
-    {
-        return ncnn::Mat::PIXEL_RGB;
-    }
-    else if (format == (int)ImageFormat::GF_GRAY)
-    {
-        return ncnn::Mat::PIXEL_GRAY2RGB;
-    }
-
-    return ncnn::Mat::PIXEL_RGB;
 }
 } // namespace gawrs_face

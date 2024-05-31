@@ -3,6 +3,7 @@
 #include <shared_mutex>
 #include <spdlog/spdlog.h>
 
+#include "gawrs_face/common/image_frame.h"
 #include "gawrs_face/sdk_interface/error_code.h"
 #include "gawrs_face/sdk_interface/sdk_types.h"
 #include "gawrs_face/services/detector/scrfd.h"
@@ -56,11 +57,11 @@ public:
 
     GawrsFaceErrorCode initialize(const FaceEngineConfig& config);
 
-    GawrsFaceErrorCode detectFace(unsigned char* idata, int width, int height, int format,
+    GawrsFaceErrorCode detectFace(unsigned char* idata, int width, int height, ImageFormat format,
                                   std::vector<Detection>& detections);
 
-    GawrsFaceErrorCode extractFaceFeature(unsigned char* idata, int width, int height, int format, const Detection& det,
-                                          FaceFeaturePacked& packed);
+    GawrsFaceErrorCode extractFaceFeature(unsigned char* idata, int width, int height, ImageFormat format,
+                                          const Detection& det, FaceFeaturePacked& packed);
 
     static float compareFaceFeature(const FaceFeaturePacked& packed1, const FaceFeaturePacked& packed2);
 
@@ -80,7 +81,7 @@ public:
     void setRotation(RotationModel val) { config_.rotation = val; }
 
 private:
-    GawrsFaceErrorCode imageCheck(unsigned char* idata, int width, int height, int format);
+    GawrsFaceErrorCode imageCheck(unsigned char* idata, int width, int height, ImageFormat format);
 
 private:
     bool hasInitialized_{false};
@@ -95,5 +96,5 @@ private:
 
 inline int mapToOrientation(RotationModel model);
 
-inline int toNCNN_RGB24(int format);
+inline int toNCNN_RGB24(ImageFormat format);
 } // namespace gawrs_face

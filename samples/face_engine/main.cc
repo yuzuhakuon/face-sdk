@@ -30,16 +30,16 @@ int main()
     engine.initialize(config);
 
     std::vector<Detection> detsA, detsB, detsC;
-    engine.detectFace(imageA.data, imageA.cols, imageA.rows, ImageFormat::GF_BGR24, detsA);
-    engine.detectFace(imageB.data, imageB.cols, imageB.rows, ImageFormat::GF_BGR24, detsB);
-    engine.detectFace(imageC.data, imageC.cols, imageC.rows, ImageFormat::GF_BGR24, detsC);
+    engine.detectFace(imageA.data, imageA.cols, imageA.rows, ImageFormat::SBGR, detsA);
+    engine.detectFace(imageB.data, imageB.cols, imageB.rows, ImageFormat::SBGR, detsB);
+    engine.detectFace(imageC.data, imageC.cols, imageC.rows, ImageFormat::SBGR, detsC);
 
     if (detsA.size() > 0 && detsB.size() > 0 && detsC.size() > 0)
     {
         FaceFeaturePacked packedA, packedB, packedC;
-        engine.extractFaceFeature(imageA.data, imageA.cols, imageA.rows, ImageFormat::GF_BGR24, detsA[0], packedA);
-        engine.extractFaceFeature(imageB.data, imageB.cols, imageB.rows, ImageFormat::GF_BGR24, detsB[0], packedB);
-        engine.extractFaceFeature(imageC.data, imageC.cols, imageC.rows, ImageFormat::GF_BGR24, detsC[0], packedC);
+        engine.extractFaceFeature(imageA.data, imageA.cols, imageA.rows, ImageFormat::SBGR, detsA[0], packedA);
+        engine.extractFaceFeature(imageB.data, imageB.cols, imageB.rows, ImageFormat::SBGR, detsB[0], packedB);
+        engine.extractFaceFeature(imageC.data, imageC.cols, imageC.rows, ImageFormat::SBGR, detsC[0], packedC);
         float cosineAB = cosineSimilarity(packedA.feature, packedB.feature, kFeatureSize);
         float cosineAC = cosineSimilarity(packedA.feature, packedC.feature, kFeatureSize);
         float cosineBC = cosineSimilarity(packedB.feature, packedC.feature, kFeatureSize);

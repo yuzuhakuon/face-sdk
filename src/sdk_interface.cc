@@ -1,4 +1,5 @@
 #include "gawrs_face/sdk_interface/sdk_interface.h"
+#include "gawrs_face/common/image_frame.h"
 #include "gawrs_face/sdk_interface/error_code.h"
 #include "gawrs_face/services/face_engine.h"
 #include "gawrs_face/types/face_feature.h"
@@ -42,7 +43,8 @@ GawrsRet detectFaces(GawrsHandle handle, LP_ImageData img, LP_GawrsMultiFaceInfo
 
     auto ret = GawrsFaceErrorCode::GFE_OK;
     std::vector<Detection> output;
-    ret = engine->detectFace(img->data, img->width, img->height, img->format, output);
+    ImageFormat format = static_cast<ImageFormat>(img->format);
+    ret = engine->detectFace(img->data, img->width, img->height, format, output);
     if (ret == GFE_OK)
     {
         detectedFaces->faceNum = output.size();
@@ -101,7 +103,8 @@ GawrsRet extractFaceFeature(GawrsHandle handle, LP_ImageData img, LP_GawrsFaceIn
     Detection det{.label = 0, .score = faceInfo->faceScore, .boundingBox = bbox, .keypoints = keypoints};
 
     FaceFeaturePacked packed;
-    ret = engine->extractFaceFeature(img->data, img->width, img->height, img->format, det, packed);
+    ImageFormat format = static_cast<ImageFormat>(img->format);
+    ret = engine->extractFaceFeature(img->data, img->width, img->height, format, det, packed);
     if (ret == GawrsFaceErrorCode::GFE_OK)
     {
         constexpr auto featureSize = sizeof(packed);
