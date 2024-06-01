@@ -24,7 +24,7 @@ set(CMAKE_INSTALL_PREFIX "install")
 # Compile options
 # ------------------------------------------------------------------
 option(ENABLE_LOG "write to local file" ON)
-option(java_REQUIRED "build with java interface" OFF)
+option(java_REQUIRED "build with java interface" ON)
 option(python_REQUIRED "build with python interface" ON)
 # option(TensorRT_REQUIRED "add tensorrt support" OFF)
 # option(onnxruntime_REQUIRED "add onnxruntime support" ON)

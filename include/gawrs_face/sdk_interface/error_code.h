@@ -10,6 +10,7 @@ enum GawrsFaceErrorCode
 {
     GFE_OK = 0x00000,             ///< No error
     GFE_UNKNOWN = (ERR_BASE + 0), ///< Unknown error
+    GFE_INVALID_PARAM = (ERR_BASE + 1), ///< Unknown error
 
     GFE_ENGINE_INIT_FAIL = (ERR_ENGINE_ERROR_BASE + 1),     ///< Engine init error
     GFE_DETECTOR_INIT_FAIL = (ERR_ENGINE_ERROR_BASE + 2),   ///< Detector init error
