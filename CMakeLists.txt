@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.19)
 # Start face sdk project
 # ----------------------------------------------
 project(
-  face_sdk
+  gawrs_face_sdk
   VERSION 0.0.1
   LANGUAGES CXX)
 message(STATUS "Build FaceSDK")
@@ -26,8 +26,6 @@ set(CMAKE_INSTALL_PREFIX "install")
 option(ENABLE_LOG "write to local file" ON)
 option(java_REQUIRED "build with java interface" ON)
 option(python_REQUIRED "build with python interface" ON)
-# option(TensorRT_REQUIRED "add tensorrt support" OFF)
-# option(onnxruntime_REQUIRED "add onnxruntime support" ON)
 
 # ------------------------------------------------------------------
 # Set default build to release
@@ -115,7 +113,7 @@ set_target_properties(
 
 file(GLOB_RECURSE SDK_HEADER_FILES ./include/gawrs_face/sdk_interface/*.h)
 install(
-  TARGETS face_sdk
+  TARGETS ${CMAKE_PROJECT_NAME}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib)
 install(FILES ${SDK_HEADER_FILES} DESTINATION include/gawrs_face)
